@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from schemas import Band
+from schemas import BandWithID, BandCreate
 app = FastAPI()
 
 BANDS = [
@@ -13,13 +13,13 @@ BANDS = [
 
 # Checkout /docs swagger api docs thing is amazing
 @app.get("/")
-def Home() -> list[Band]:
+def Home() -> list[BandWithID]:
     return [
-        Band(**b) for b in BANDS
+        BandWithID(**b) for b in BANDS
     ]
 
 @app.get('/bands/{band_id}')
-async def band(band_id:int) -> Band:
+async def band(band_id: int) -> BandWithID:
     band = next((b for b in BANDS if b['id'] == band_id), None)
     if band is None:
         raise HTTPException(status_code=404, detail='Not Found')
@@ -28,3 +28,11 @@ async def band(band_id:int) -> Band:
 @app.get("/about")
 def About() -> str :
     return "Amazing Company"
+
+
+@app.post("/bands")
+async def create_band(band_data: BandCreate) -> BandWithID:
+    id = BANDS[-1]['id'] + 1
+    band = BandWithID(id=id, **band_data.model_dump()).model_dump()
+    BANDS.append(band)
+    return band

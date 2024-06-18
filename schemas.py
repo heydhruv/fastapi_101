@@ -15,10 +15,14 @@ class Album(BaseModel):
     title: str
     release_date: date
 
-class Band(BaseModel):
-    id: int
+class BandBase(BaseModel):
     name: str
     genre: str
-    album: list[Album]
+    album: list[Album] = []
 
+class BandCreate(BandBase):
+    pass
+
+class BandWithID(BandBase):
+    id: int
 
