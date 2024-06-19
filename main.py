@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException
-from schemas import BandWithID, BandCreate
+from fastapi import FastAPI, HTTPException, Query
+from schemas import BandWithID, BandCreate, GenreURLChoices
+from typing import Annotated
 app = FastAPI()
 
 BANDS = [
@@ -13,11 +14,19 @@ BANDS = [
 
 # Checkout /docs swagger api docs thing is amazing
 @app.get("/")
-def Home() -> list[BandWithID]:
-    return [
-        BandWithID(**b) for b in BANDS
-    ]
+def Home(genre: GenreURLChoices | None = None, q: Annotated[str | None, Query(max_length=10)] = None) -> list[BandWithID]:
+    band_list = [BandWithID(**b) for b in BANDS]
 
+    if genre:
+        band_list = [
+            b for b in band_list if b.genre.value.lower() == genre.value
+        ]
+
+    if q:
+        band_list = [
+            b for b in band_list if q.lower() in b.name.lower()
+        ]
+    return band_list
 @app.get('/bands/{band_id}')
 async def band(band_id: int) -> BandWithID:
     band = next((b for b in BANDS if b['id'] == band_id), None)
