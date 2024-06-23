@@ -3,4 +3,7 @@ pydantic
 uvicorn
 sqlalchemy
 alembic
-
+sqlmodel
+alembic
+psycopg2
+psycopg2-binary
